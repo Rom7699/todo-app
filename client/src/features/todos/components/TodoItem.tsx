@@ -3,14 +3,15 @@ import type { Todo } from "../types";
 
 interface TodoItemProps {
   todo: Todo;
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onEdit: (id: string, text: string) => void;
+  onToggle: (id: string) => void | Promise<void>;
+  onDelete: (id: string) => void | Promise<void>;
+  onEdit: (id: string, text: string) => void | Promise<void>;
+  disabled?: boolean;
 }
 
-export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
+export function TodoItem({ todo, onToggle, onDelete, onEdit, disabled = false }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(todo.text);
+  const [editValue, setEditValue] = useState(todo.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,9 +23,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   function handleEditCommit() {
     if (editValue.trim()) {
-      onEdit(todo.id, editValue);
+      void onEdit(todo.id, editValue);
     } else {
-      setEditValue(todo.text);
+      setEditValue(todo.title);
     }
     setEditing(false);
   }
@@ -32,7 +33,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") handleEditCommit();
     if (e.key === "Escape") {
-      setEditValue(todo.text);
+      setEditValue(todo.title);
       setEditing(false);
     }
   }
@@ -40,7 +41,10 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   return (
     <li className="group flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0">
       <button
-        onClick={() => onToggle(todo.id)}
+        onClick={() => {
+          void onToggle(todo.id);
+        }}
+        disabled={disabled}
         aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
         className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 ${
           todo.completed
@@ -65,6 +69,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
         <input
           ref={inputRef}
           value={editValue}
+          disabled={disabled}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleEditCommit}
           onKeyDown={handleKeyDown}
@@ -72,7 +77,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
         />
       ) : (
         <span
-          onDoubleClick={() => setEditing(true)}
+          onDoubleClick={() => !disabled && setEditing(true)}
           className={`flex-1 text-sm select-none cursor-default ${
             todo.completed
               ? "line-through text-gray-400 dark:text-gray-500"
@@ -80,7 +85,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           }`}
           title="Double-click to edit"
         >
-          {todo.text}
+          {todo.title}
         </span>
       )}
 
@@ -88,6 +93,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
         {!editing && (
           <button
             onClick={() => setEditing(true)}
+            disabled={disabled}
             aria-label="Edit todo"
             className="p-1 rounded text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 transition-colors"
           >
@@ -97,7 +103,10 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           </button>
         )}
         <button
-          onClick={() => onDelete(todo.id)}
+          onClick={() => {
+            void onDelete(todo.id);
+          }}
+          disabled={disabled}
           aria-label="Delete todo"
           className="p-1 rounded text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 transition-colors"
         >

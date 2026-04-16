@@ -3,12 +3,13 @@ import { TodoItem } from "./TodoItem";
 
 interface TodoListProps {
   todos: Todo[];
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onEdit: (id: string, text: string) => void;
+  onToggle: (id: string) => void | Promise<void>;
+  onDelete: (id: string) => void | Promise<void>;
+  onEdit: (id: string, text: string) => void | Promise<void>;
+  disabled?: boolean;
 }
 
-export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
+export function TodoList({ todos, onToggle, onDelete, onEdit, disabled = false }: TodoListProps) {
   if (todos.length === 0) {
     return (
       <div className="py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
@@ -23,11 +24,12 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
         <TodoItem
           key={todo.id}
           todo={todo}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-      ))}
-    </ul>
+            onToggle={onToggle}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            disabled={disabled}
+          />
+        ))}
+      </ul>
   );
 }
