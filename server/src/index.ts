@@ -11,6 +11,16 @@ app.use("/todos", todoRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+server.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use. Stop the other process or run with a different port:`);
+    console.error(`  PORT=3002 npm start`);
+  } else {
+    console.error("Server error:", err.message);
+  }
+  process.exit(1);
 });
