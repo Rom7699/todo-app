@@ -1,16 +1,17 @@
 import { useState, type FormEvent } from "react";
 
 interface AddTodoFormProps {
-  onAdd: (text: string) => void;
+  onAdd: (text: string) => void | Promise<void>;
+  disabled?: boolean;
 }
 
-export function AddTodoForm({ onAdd }: AddTodoFormProps) {
+export function AddTodoForm({ onAdd, disabled = false }: AddTodoFormProps) {
   const [value, setValue] = useState("");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (value.trim()) {
-      onAdd(value);
+      void onAdd(value);
       setValue("");
     }
   }
@@ -20,6 +21,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
       <input
         type="text"
         value={value}
+        disabled={disabled}
         onChange={(e) => setValue(e.target.value)}
         placeholder="What needs to be done?"
         className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 text-sm"
@@ -27,7 +29,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
       />
       <button
         type="submit"
-        disabled={!value.trim()}
+        disabled={!value.trim() || disabled}
         className="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
       >
         Add

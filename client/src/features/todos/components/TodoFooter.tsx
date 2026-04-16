@@ -5,7 +5,8 @@ interface TodoFooterProps {
   hasCompleted: boolean;
   filter: FilterType;
   onFilterChange: (f: FilterType) => void;
-  onClearCompleted: () => void;
+  onClearCompleted: () => void | Promise<void>;
+  disabled?: boolean;
 }
 
 const FILTERS: { label: string; value: FilterType }[] = [
@@ -20,6 +21,7 @@ export function TodoFooter({
   filter,
   onFilterChange,
   onClearCompleted,
+  disabled = false,
 }: TodoFooterProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-xs text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-700">
@@ -32,6 +34,7 @@ export function TodoFooter({
           <button
             key={value}
             onClick={() => onFilterChange(value)}
+            disabled={disabled}
             className={`px-2.5 py-1 rounded text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 ${
               filter === value
                 ? "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
@@ -45,7 +48,10 @@ export function TodoFooter({
 
       {hasCompleted ? (
         <button
-          onClick={onClearCompleted}
+          onClick={() => {
+            void onClearCompleted();
+          }}
+          disabled={disabled}
           className="text-xs hover:text-red-500 dark:hover:text-red-400 transition-colors focus:outline-none focus:underline"
         >
           Clear completed
